@@ -8,12 +8,6 @@ public abstract class BaseEntityMapping<T> : IEntityTypeConfiguration<T> where T
 {
     void IEntityTypeConfiguration<T>.Configure(EntityTypeBuilder<T> builder)
     {
-        builder.HasKey(b => b.Id);
-
-        builder.Property(b => b.Id)
-            .HasColumnName("id")
-            .HasColumnType("CHAR(36)");
-
         builder.Property(b => b.CreatedBy)
             .HasColumnName("criado_por")
             .HasMaxLength(100);
@@ -28,7 +22,8 @@ public abstract class BaseEntityMapping<T> : IEntityTypeConfiguration<T> where T
 
         builder.Property(b => b.UpdatedAt)
             .HasColumnName("atualizado_em")
-            .HasColumnType("DATETIME(6)");
+            .HasColumnType("DATETIME(6)")
+            .ValueGeneratedOnUpdate();
 
         Configure(builder);
 

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using finrv.Domain;
 
@@ -10,9 +11,11 @@ using finrv.Domain;
 namespace finrv.ApiService.Migrations
 {
     [DbContext(typeof(InvestimentDbContext))]
-    partial class InvestimentDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250605145800_Created-Asset-Entity")]
+    partial class CreatedAssetEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
