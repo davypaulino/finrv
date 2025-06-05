@@ -14,15 +14,16 @@ public class QuotationEntityMapping : BaseEntityMapping<QuotationEntity>
 
         builder.Property(q => q.Id)
             .HasColumnName("id")
-            .HasColumnType("CHAR(36)");
+            .HasColumnType("BIGINT UNSIGNED")
+            .ValueGeneratedOnAdd();
 
         builder.Property(q => q.AssetId)
             .HasColumnName("ativo_id")
-            .HasColumnType("BIGINT UNSIGNED");
+            .HasColumnType("BIGINT UNSIGNED")
+            .IsRequired();
 
         builder.HasOne(q => q.Asset)
             .WithMany(a => a.Quotations)
-            .HasPrincipalKey(a => a.Id)
             .HasForeignKey(q => q.AssetId)
             .OnDelete(DeleteBehavior.Cascade);
 

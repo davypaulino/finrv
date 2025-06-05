@@ -7,6 +7,9 @@ public class UserEntity : BaseEntity
     public string Email { get; set; }
     public double BrokeragePercent { get; set; }
 
+    public ICollection<TransactionEntity> Transactions { get; set; } = new List<TransactionEntity>();
+    public ICollection<PositionEntity> Positions { get; set; } = new List<PositionEntity>();
+
     private UserEntity() { }
 
     public UserEntity(string name, string email, double brokeragePercent)

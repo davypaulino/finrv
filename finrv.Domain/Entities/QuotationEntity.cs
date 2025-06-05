@@ -4,8 +4,8 @@ namespace finrv.Domain.Entities;
 
 public class QuotationEntity : BaseEntity
 {
-    public Guid Id { get; set; }
-    public long AssetId { get; set; }
+    public ulong Id { get; set; }
+    public ulong AssetId { get; set; }
     public AssetEntity Asset { get; set; }
     public double Price { get; set; }
 

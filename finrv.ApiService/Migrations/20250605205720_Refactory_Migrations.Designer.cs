@@ -11,8 +11,8 @@ using finrv.Domain;
 namespace finrv.ApiService.Migrations
 {
     [DbContext(typeof(InvestimentDbContext))]
-    [Migration("20250605164005_Created-Quotation-Entity")]
-    partial class CreatedQuotationEntity
+    [Migration("20250605205720_Refactory_Migrations")]
+    partial class Refactory_Migrations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,9 +24,10 @@ namespace finrv.ApiService.Migrations
 
             modelBuilder.Entity("finrv.Domain.Entities.AssetEntity", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<ulong>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("serial");
+                        .HasColumnType("BIGINT UNSIGNED")
+                        .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("DATETIME(6)")
@@ -65,9 +66,9 @@ namespace finrv.ApiService.Migrations
 
             modelBuilder.Entity("finrv.Domain.Entities.QuotationEntity", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<ulong>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("CHAR(36)")
+                        .HasColumnType("BIGINT UNSIGNED")
                         .HasColumnName("id");
 
                     b.Property<ulong>("AssetId")
@@ -103,6 +104,66 @@ namespace finrv.ApiService.Migrations
                     b.HasIndex("AssetId");
 
                     b.ToTable("cotacao", (string)null);
+                });
+
+            modelBuilder.Entity("finrv.Domain.Entities.TransactionEntity", b =>
+                {
+                    b.Property<ulong>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("BIGINT UNSIGNED")
+                        .HasColumnName("id");
+
+                    b.Property<ulong>("AssetId")
+                        .HasColumnType("BIGINT UNSIGNED")
+                        .HasColumnName("ativo_id");
+
+                    b.Property<decimal>("BrokerageValue")
+                        .HasColumnType("decimal(10, 2)")
+                        .HasColumnName("corretagem");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("DATETIME(6)")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<int>("PositionSize")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantidade");
+
+                    b.Property<sbyte>("Type")
+                        .HasColumnType("TINYINT")
+                        .HasColumnName("tipo_operacao");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(10, 2)")
+                        .HasColumnName("preco_unitario");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("DATETIME(6)")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("CHAR(36)")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("operacoes", (string)null);
                 });
 
             modelBuilder.Entity("finrv.Domain.Entities.UserEntity", b =>
@@ -162,9 +223,35 @@ namespace finrv.ApiService.Migrations
                     b.Navigation("Asset");
                 });
 
+            modelBuilder.Entity("finrv.Domain.Entities.TransactionEntity", b =>
+                {
+                    b.HasOne("finrv.Domain.Entities.AssetEntity", "Asset")
+                        .WithMany("Transactions")
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("finrv.Domain.Entities.UserEntity", "User")
+                        .WithMany("Transactions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Asset");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("finrv.Domain.Entities.AssetEntity", b =>
                 {
                     b.Navigation("Quotations");
+
+                    b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("finrv.Domain.Entities.UserEntity", b =>
+                {
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }
