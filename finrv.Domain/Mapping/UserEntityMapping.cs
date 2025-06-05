@@ -14,7 +14,8 @@ public class UserEntityMapping : BaseEntityMapping<UserEntity>
 
         builder.Property(b => b.Id)
             .HasColumnName("id")
-            .HasColumnType("CHAR(36)");
+            .HasColumnType("CHAR(36)")
+            .IsRequired();
 
         builder.Property(u => u.Name)
             .HasColumnName("nome")

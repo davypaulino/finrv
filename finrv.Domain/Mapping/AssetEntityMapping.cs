@@ -13,7 +13,8 @@ public class AssetEntityMapping : BaseEntityMapping<AssetEntity>
         builder.HasKey(a => a.Id);
 
         builder.Property(a => a.Id)
-            .HasColumnType("serial")
+            .HasColumnName("id")
+            .HasColumnType("BIGINT UNSIGNED")
             .ValueGeneratedOnAdd();
 
         builder.Property(a => a.Ticker)
