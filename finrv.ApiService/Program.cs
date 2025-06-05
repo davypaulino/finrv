@@ -10,7 +10,7 @@ builder.Services.AddProblemDetails();
 
 var connectionString = builder.Configuration.GetConnectionString("Database");
 builder.Services.AddDbContext<InvestimentDbContext>(options =>
-    options.UseMySQL(connectionString!));
+    options.UseMySQL(connectionString!, b => b.MigrationsAssembly("finrv.ApiService")));
 
 builder.Services.AddOpenApi();
 
