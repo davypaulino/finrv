@@ -1,4 +1,5 @@
 # Serviços de Renda Variável
+Arquitetura do serviço de renda variável.
 
 ```mermaid
 C4Container
@@ -21,3 +22,9 @@ Rel(wsc, kafka, "consome")
 Rel(wsc, monitoring, "Envia Log e metricas")
 Rel(so, monitoring, "Envia Log e metricas")
 ```
+
+# Como Executar
+Instruções para executar aplicação localmente.
+
+## Configurações de variáveis de ambiente
+Use o arquivo `.env-example` para criar seu arquivo `.env` com suas variaveis de ambiente.
