@@ -13,6 +13,7 @@ public class InvestimentDbContext : DbContext
 
     public virtual DbSet<UserEntity> User { get; set; }
     public virtual DbSet<AssetEntity> Asset { get; set; }
+    public virtual DbSet<QuotationEntity> Quotation { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
