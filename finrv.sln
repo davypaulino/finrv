@@ -4,8 +4,6 @@ VisualStudioVersion = 17.13.35931.197 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "finrv.ApiService", "finrv.ApiService\finrv.ApiService.csproj", "{83A73EDC-2AED-4D6D-3A6F-41DCF430FB1D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "finrv.Infra", "finrv.Infra\finrv.Infra\finrv.Infra.csproj", "{83B62705-F7D3-4228-B172-D1EE84EA69A5}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "finrv.Domain", "finrv.Domain\finrv.Domain.csproj", "{6803C221-0D11-4368-A6EB-7E2C8D3A0553}"
 EndProject
 Global
@@ -18,10 +16,6 @@ Global
 		{83A73EDC-2AED-4D6D-3A6F-41DCF430FB1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83A73EDC-2AED-4D6D-3A6F-41DCF430FB1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83A73EDC-2AED-4D6D-3A6F-41DCF430FB1D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{83B62705-F7D3-4228-B172-D1EE84EA69A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{83B62705-F7D3-4228-B172-D1EE84EA69A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{83B62705-F7D3-4228-B172-D1EE84EA69A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{83B62705-F7D3-4228-B172-D1EE84EA69A5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6803C221-0D11-4368-A6EB-7E2C8D3A0553}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6803C221-0D11-4368-A6EB-7E2C8D3A0553}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6803C221-0D11-4368-A6EB-7E2C8D3A0553}.Release|Any CPU.ActiveCfg = Release|Any CPU
