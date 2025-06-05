@@ -10,6 +10,12 @@ public class UserEntityMapping : BaseEntityMapping<UserEntity>
     {
         builder.ToTable("usuario");
 
+        builder.HasKey(b => b.Id);
+
+        builder.Property(b => b.Id)
+            .HasColumnName("id")
+            .HasColumnType("CHAR(36)");
+
         builder.Property(u => u.Name)
             .HasColumnName("nome")
             .HasColumnType("varchar(100)")

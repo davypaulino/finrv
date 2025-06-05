@@ -12,6 +12,7 @@ public class InvestimentDbContext : DbContext
     }
 
     public virtual DbSet<UserEntity> User { get; set; }
+    public virtual DbSet<AssetEntity> Asset { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
