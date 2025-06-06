@@ -17,15 +17,15 @@ public class RequestInfoMiddleware
 
     public async Task Invoke(HttpContext context, RequestInfo requestInfo)
     {
-        var correlationId = context.Request.Headers["X-Correlation-Id"].FirstOrDefault();
-        var clientType = context.Request.Headers["X-Client-Type"].FirstOrDefault();
+        var correlationId = context.Request.Headers["X-Correlation-Id"].FirstOrDefault()?.Sanitize();
+        var clientType = context.Request.Headers["X-Client-Type"].FirstOrDefault()?.Sanitize();
 
         _logger.LogInformation("Starting | Class {ClassName} | Method {Method} | Correlation: {CorrelationId} | ClientType: {ClientType} ",
             CLASS_NAME, nameof(Invoke), correlationId, clientType);
 
         requestInfo.SetInfo(
-            context.Request.Headers["X-Correlation-Id"].FirstOrDefault(),
-            context.Request.Headers["X-Client-Type"].FirstOrDefault());
+            correlationId,
+            clientType);
 
         await _next(context);
 

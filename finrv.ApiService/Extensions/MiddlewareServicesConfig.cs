@@ -26,7 +26,7 @@ public static class MiddlewareServicesConfig
                 var requestInfo = context.RequestServices.GetRequiredService<RequestInfo>();
 
                 logger.LogError("Erro inesperado na requisição | ClientType: {ClientType} | CorrelationId: {CorrelationId} | Path: {Path}",
-                    requestInfo.ClientType, requestInfo.CorrelationId, context.Request.Path);
+                    requestInfo.ClientType, requestInfo.CorrelationId, context.Request.Path.ToString().Sanitize());
 
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 context.Response.ContentType = "application/json";
