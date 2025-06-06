@@ -1,6 +1,9 @@
 ﻿using finrv.Domain.Entities;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 
 namespace finrv.Infra.Mapping;
 
