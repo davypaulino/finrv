@@ -2,6 +2,6 @@
 
 public enum ETransactionType
 {
-    Buy,
+    Buy = 1,
     Sell
 }
