@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace finrv.Domain.Mapping;
+namespace finrv.Infra.Mapping;
 
 public class AssetEntityMapping : BaseEntityMapping<AssetEntity>
 {
@@ -19,7 +19,7 @@ public class AssetEntityMapping : BaseEntityMapping<AssetEntity>
 
         builder.Property(a => a.Ticker)
             .HasColumnName("codigo")
-            .HasColumnType("varchar(10)")
+            .HasColumnType("varchar(8)")
             .IsRequired();
 
         builder.Property(a => a.Name)

@@ -1,3 +1,3 @@
-﻿namespace finrv.ApiService.Extensions.EnvironmentConfigMaps;
+﻿namespace finrv.Infra.Extensions.EnvironmentConfigMaps;
 
 public record OpenApiDocumentationSettings(string Title, string Favicon);

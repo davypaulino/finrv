@@ -1,7 +1,7 @@
 ﻿using finrv.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace finrv.Domain;
+namespace finrv.Infra;
 
 public class InvestimentDbContext : DbContext
 {

@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace finrv.Domain.Entities;
+﻿namespace finrv.Domain.Entities;
 
 public class QuotationEntity : BaseEntity
 {

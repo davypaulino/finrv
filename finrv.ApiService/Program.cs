@@ -1,17 +1,10 @@
-using finrv.ApiService.Extensions.EnvironmentConfigMaps;
 using finrv.ApiService.Routes;
-using finrv.Domain;
-using Microsoft.EntityFrameworkCore;
-using Scalar.AspNetCore;
+using finrv.Infra.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
-
-var connectionString = builder.Configuration.GetConnectionString("Database");
-builder.Services.AddDbContext<InvestimentDbContext>(options =>
-    options.UseMySQL(connectionString!, b => b.MigrationsAssembly("finrv.ApiService")));
-
+builder.Services.AddDatabase(builder.Configuration);
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -21,12 +14,7 @@ app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference("/api-reference", options =>
-    {
-        var config = builder.Configuration.GetSection("OpeApiDocumentationSettings").Get<OpenApiDocumentationSettings>();
-        options.WithTitle(config!.Title);
-        options.WithFavicon(config!.Favicon);
-    });
+    app.MapOpenApiDocumentation(builder.Configuration);
 }
 
 app.MapGroup("/api/v1/users")

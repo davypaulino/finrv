@@ -8,7 +8,7 @@ using finrv.Domain;
 
 #nullable disable
 
-namespace finrv.ApiService.Migrations
+namespace finrv.Infra.Migrations
 {
     [DbContext(typeof(InvestimentDbContext))]
     [Migration("20250605205720_Refactory_Migrations")]

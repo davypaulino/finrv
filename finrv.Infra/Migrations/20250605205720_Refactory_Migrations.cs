@@ -4,7 +4,7 @@ using MySql.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
-namespace finrv.ApiService.Migrations
+namespace finrv.Infra.Migrations
 {
     /// <inheritdoc />
     public partial class Refactory_Migrations : Migration

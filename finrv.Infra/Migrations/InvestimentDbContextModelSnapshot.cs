@@ -2,20 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using finrv.Domain;
+using finrv.Infra;
 
 #nullable disable
 
-namespace finrv.ApiService.Migrations
+namespace finrv.Infra.Migrations
 {
     [DbContext(typeof(InvestimentDbContext))]
-    [Migration("20250605213807_Create_Position_Entity_AND_Remove_Constraints")]
-    partial class Create_Position_Entity_AND_Remove_Constraints
+    partial class InvestimentDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
