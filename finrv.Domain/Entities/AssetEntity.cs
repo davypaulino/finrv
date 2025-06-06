@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace finrv.Domain.Entities;
+﻿namespace finrv.Domain.Entities;
 public class AssetEntity : BaseEntity
 {
     public ulong Id { get; set; }

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace finrv.ApiService.Migrations
+namespace finrv.Infra.Migrations
 {
     /// <inheritdoc />
     public partial class Create_Position_Entity_AND_Remove_Constraints : Migration

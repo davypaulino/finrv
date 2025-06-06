@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace finrv.Domain.Mapping;
+namespace finrv.Infra.Mapping;
 
 public abstract class BaseEntityMapping<T> : IEntityTypeConfiguration<T> where T : BaseEntity
 {
