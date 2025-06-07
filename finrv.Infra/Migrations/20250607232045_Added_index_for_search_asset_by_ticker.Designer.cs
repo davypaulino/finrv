@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using finrv.Infra;
 
@@ -10,9 +11,11 @@ using finrv.Infra;
 namespace finrv.Infra.Migrations
 {
     [DbContext(typeof(InvestimentDbContext))]
-    partial class InvestimentDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250607232045_Added_index_for_search_asset_by_ticker")]
+    partial class Added_index_for_search_asset_by_ticker
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -158,13 +161,9 @@ namespace finrv.Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetId", "CreatedAt")
+                    b.HasIndex("AssetId", "CreatedAt", "UpdatedAt")
                         .IsDescending()
-                        .HasDatabaseName("IX_latest_quotation_by_ticker_createdAt_des");
-
-                    b.HasIndex("AssetId", "UpdatedAt")
-                        .IsDescending()
-                        .HasDatabaseName("IX_latest_quotation_by_ticker_updateAt_des");
+                        .HasDatabaseName("IX_latest_quotation_by_ticker_des");
 
                     b.ToTable("cotacao", (string)null);
                 });

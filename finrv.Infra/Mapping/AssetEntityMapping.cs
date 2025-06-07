@@ -26,5 +26,9 @@ public class AssetEntityMapping : BaseEntityMapping<AssetEntity>
             .HasColumnName("nome")
             .HasColumnType("varchar(150)")
             .IsRequired();
+
+        builder.HasIndex(a => a.Ticker)
+            .HasDatabaseName("IX_Asset_Ticker")
+            .IsUnique();
     }
 }

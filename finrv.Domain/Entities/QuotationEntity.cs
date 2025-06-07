@@ -5,11 +5,11 @@ public class QuotationEntity : BaseEntity
     public ulong Id { get; set; }
     public ulong AssetId { get; set; }
     public AssetEntity Asset { get; set; }
-    public double Price { get; set; }
+    public decimal Price { get; set; }
 
     private QuotationEntity() { }
 
-    public QuotationEntity(AssetEntity asset, double price)
+    public QuotationEntity(AssetEntity asset, decimal price)
     {
         Asset = asset;
         AssetId = asset.Id;
