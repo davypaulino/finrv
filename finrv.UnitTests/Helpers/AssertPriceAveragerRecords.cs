@@ -51,6 +51,16 @@ public static class AssertPriceAveragerRecords
                 ExpectedWeightedAverage: 13.11m,
                 Description: "Compras com preços e quantidades decimais complexos"
             ),
+            new PurchaseTestCase(
+                Trades: new List<Trade>
+                {
+                    new Trade(PositionSize: 100, Price: 10.00m, Time: DateTime.Now),
+                    new Trade(PositionSize: 75, Price: -5.00m, Time: DateTime.Now.AddHours(-2)),
+                    new Trade(PositionSize: 25, Price: 12.00m, Time: DateTime.Now.AddHours(-3))
+                },
+                ExpectedWeightedAverage: 10.40m,
+                Description: "Compras com preços negativos (devem ser ignoradas)"
+            ),
         }
         .Select(tc => new object[] { tc.Trades, tc.ExpectedWeightedAverage, tc.Description });
 }

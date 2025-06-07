@@ -13,10 +13,10 @@ public class AssetPriceAverager(IEnumerable<Trade> purchases) : IAssetPriceAvera
         {
             return 0m;
         }
-
+        
         var result = new Trade(
-            (uint)_purchases.Sum(p => (long)p.PositionSize),
-            _purchases.Sum(p => p.Price * p.PositionSize),
+            (uint)_purchases.Sum(p => p.Price > 0 ? (long)p.PositionSize : 0),
+            _purchases.Sum(p => p.Price > 0 ? p.Price * p.PositionSize : 0m),
             DateTime.Now
         );
         
