@@ -11,7 +11,7 @@ public class AssetPriceAveragerFactoryTests
     private readonly IEnumerable<Trade> _dummyTrades = new List<Trade>();
 
     [Theory]
-    [InlineData(EVariableIncomeProduct.Acoes, typeof(StockAssetPriceAverager))]
+    [InlineData(EVariableIncomeProduct.Acoes, typeof(AssetPriceAverager))]
     public void CreateCalculator_ShouldReturnCorrectType_ForGivenProduct(
         EVariableIncomeProduct productType, Type expectedCalculatorType)
     {
