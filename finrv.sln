@@ -5,6 +5,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "finrv.ApiService", "finrv.ApiService\finrv.ApiService.csproj", "{83A73EDC-2AED-4D6D-3A6F-41DCF430FB1D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "finrv.Domain", "finrv.Domain\finrv.Domain.csproj", "{6803C221-0D11-4368-A6EB-7E2C8D3A0553}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B4A34FA2-274F-4485-9710-2CFBA71B498B} = {B4A34FA2-274F-4485-9710-2CFBA71B498B}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "finrv.Application", "finrv.Application\finrv.Application.csproj", "{055AB108-0893-460F-9364-70404A4857CD}"
 EndProject
@@ -17,9 +20,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{02EA681E
 		docker-compose.yml = docker-compose.yml
 		LICENSE = LICENSE
 		README.md = README.md
+		.env = .env
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "finrv.Shared", "finrv.Shared\finrv.Shared.csproj", "{B4A34FA2-274F-4485-9710-2CFBA71B498B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "finrv.UnitTests", "finrv.UnitTests\finrv.UnitTests.csproj", "{7390C5DB-FD57-48FB-8873-0C0D13782A06}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +53,10 @@ Global
 		{B4A34FA2-274F-4485-9710-2CFBA71B498B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4A34FA2-274F-4485-9710-2CFBA71B498B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4A34FA2-274F-4485-9710-2CFBA71B498B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7390C5DB-FD57-48FB-8873-0C0D13782A06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7390C5DB-FD57-48FB-8873-0C0D13782A06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7390C5DB-FD57-48FB-8873-0C0D13782A06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7390C5DB-FD57-48FB-8873-0C0D13782A06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

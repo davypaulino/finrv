@@ -15,4 +15,19 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Calculators\**" />
+    <Compile Remove="Helpers\AssertPriceAverager\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Calculators\**" />
+    <EmbeddedResource Remove="Helpers\AssertPriceAverager\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Calculators\**" />
+    <None Remove="Helpers\AssertPriceAverager\**" />
+  </ItemGroup>
+
 </Project>
