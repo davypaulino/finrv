@@ -31,5 +31,13 @@ public class QuotationEntityMapping : BaseEntityMapping<QuotationEntity>
             .HasColumnName("preco_unitario")
             .HasColumnType("decimal(10,2)")
             .IsRequired();
+
+        builder.HasIndex(q => new { q.AssetId, q.UpdatedAt })
+            .HasDatabaseName("IX_latest_quotation_by_ticker_updateAt_des")
+            .IsDescending();
+        
+        builder.HasIndex(q => new { q.AssetId, q.CreatedAt })
+            .HasDatabaseName("IX_latest_quotation_by_ticker_createdAt_des")
+            .IsDescending();
     }
 }

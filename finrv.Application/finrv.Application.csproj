@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\finrv.Domain\finrv.Domain.csproj" />
+    <ProjectReference Include="..\finrv.Infra\finrv.Infra.csproj" />
+    <ProjectReference Include="..\finrv.Shared\finrv.Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddLogging();
 builder.Services.AddProblemDetails();
 builder.Services.AddDependencies();
+builder.Services.AddServices();
 builder.Services.AddDatabase(builder.Configuration);
 builder.Services.AddOpenApi();
 
@@ -24,5 +25,8 @@ app.MapMiddlewares();
 
 app.MapGroup("/api/v1/users")
     .MapUsers();
+
+app.MapGroup("/api/v1/assets")
+    .MapAssets();
 
 app.Run();
