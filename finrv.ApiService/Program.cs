@@ -32,4 +32,7 @@ app.MapGroup("/api/v1/assets")
 app.MapGroup("/api/v1/transactions")
     .MapTransactions();
 
+app.MapGroup("/api/v1/positions")
+    .MapPositions();
+
 app.Run();

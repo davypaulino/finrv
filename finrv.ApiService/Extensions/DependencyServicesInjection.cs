@@ -1,5 +1,6 @@
 ﻿using finrv.Application.Interfaces;
 using finrv.Application.Services.AssetService;
+using finrv.Application.Services.PositionService;
 using finrv.Application.Services.TransactionService;
 using finrv.Application.Services.UserService;
 using finrv.Application.Services.UserService;
@@ -21,6 +22,7 @@ public static class DependencyServicesInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAssetService, AssetService>();
         services.AddScoped<ITransactionService, TransactionService>();
+        services.AddScoped<IPositionService, PositionService>();
 
         return services;
     }
