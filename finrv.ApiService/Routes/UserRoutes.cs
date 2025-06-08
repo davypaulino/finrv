@@ -1,5 +1,6 @@
 ﻿using finrv.ApiService.Application;
 using finrv.Application.Interfaces;
+using finrv.Application.Services.PositionService.Dtos;
 using finrv.Application.Services.UserService.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,6 +32,19 @@ public static class UserRoutes
             .WithDisplayName("Preço Médio de Ativos")
             .Produces(StatusCodes.Status200OK,  typeof(Pagination<AssetsAveragePriceResponseDto, object>), contentType: "application/json")
             .Produces(StatusCodes.Status400BadRequest, typeof(List<string>))
+            .Produces(StatusCodes.Status500InternalServerError, typeof(string));
+
+        builder.MapGet("/{userId}/positions", async (
+            [FromServices] IUserService service,
+            [AsParameters] UsersPositionsRequestDto request,
+            Guid userId) 
+                => await service.GetUserPositionsByIdAsync(userId, request))
+            .WithName("Recupera as posições de um cliente")
+            .WithDescription("Recupera as posições de um cliente e um resumo da posição global.")
+            .WithTags("users", "positons")
+            .WithDisplayName("Recupera as posições de um cliente")
+            .Produces(StatusCodes.Status200OK, typeof(Pagination<TotalUserPositionResponseDto, UserPositionsResponseDto>), contentType: "application/json")
+            .Produces(StatusCodes.Status400BadRequest, typeof(string))
             .Produces(StatusCodes.Status500InternalServerError, typeof(string));
             
         return builder;

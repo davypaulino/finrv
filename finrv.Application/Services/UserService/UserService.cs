@@ -1,6 +1,7 @@
 using finrv.ApiService.Application;
 using finrv.Application.Enums;
 using finrv.Application.Interfaces;
+using finrv.Application.Services.PositionService.Dtos;
 using finrv.Application.Services.UserService.Dtos;
 using finrv.Domain.Entities;
 using finrv.Infra;
@@ -76,6 +77,18 @@ public class UserService(
             CLASS_NAME, nameof(AveragePriceOfAssetsByUserAsync), requestInfo.CorrelationId, requestInfo.ClientType);
 
         return new Pagination<object, AssetsAveragePriceResponseDto>(result, query.Page, query.PageSize, (uint)totalItems, null);
+    }
+
+    public async Task<Pagination<TotalUserPositionResponseDto, UserPositionsResponseDto>>
+        GetUserPositionsByIdAsync(Guid userId, UsersPositionsRequestDto request)
+    {
+        await Task.CompletedTask;
+        var records = new List<UserPositionsResponseDto>();
+        return new Pagination<TotalUserPositionResponseDto, UserPositionsResponseDto>(
+            records,
+            request.Page, request.PageSize, 0,
+            new TotalUserPositionResponseDto(
+                0m, 0, 0m, 0m, 0, 0));
     }
     
 }

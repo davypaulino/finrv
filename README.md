@@ -6,28 +6,35 @@
 
 ### Arquitetura do serviço de renda variável (Container C4 Model)
 
-```mermaid
-C4Container
-title fin aplication
+![Diagrama de Aplicação Financeira C4 Model Container](./doc/container.svg)
+<details>
+    <summary>Diagram as Code (PlantUML)</summary>
+    <pre>
+    @startuml
+    <!-- !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml -->
 
-Container_Boundary(s1, "Sistema de Renda Variavel") {
-   Container(web, "web page", "Javascript, Tailwind", "Interface para para ações financeiras")
-   Container(so, "Web Api", ".Net 9", "Serviços para operações financeiras")
-   Container(wsc, "Worker Service", ".Net 9", "Serviços para recepção de cotações")
-   ContainerDb(database, "Database", "MySql")
+    title Aplicação Financeira
 
-}
-Container_Ext(monitoring, "Observabilidade", "Prometheus, Grafana")
-Container_Ext(kafka, "Fila de Messageria", "Kafka")
+    Container_Boundary(s1, "Sistema de Renda Variável") {
+        Container(web, "Web Page", "Javascript, Tailwind", "Interface para ações financeiras")
+        Container(so, "Web API", ".NET 9", "Serviços para operações financeiras")
+        Container(wsc, "Worker Service", ".NET 9", "Serviços para recepção de cotações")
+        Container(database, "Database", "MySQL")
+    }
 
-Rel(web, so, "Consome")
-Rel(so, database, "Insere e consome")
-Rel(wsc, database, "Insere e consome")
-Rel(wsc, kafka, "consome")
-Rel(wsc, monitoring, "Envia Log e metricas")
-Rel(so, monitoring, "Envia Log e metricas")
-```
+    Container_Ext(monitoring, "Observabilidade", "Prometheus, Grafana")
+    Container_Ext(kafka, "Fila de Mensageria", "Kafka")
 
+    Rel(web, so, "Consome")
+    Rel(so, database, "Insere e consome")
+    Rel(wsc, database, "Insere e consome")
+    Rel(wsc, kafka, "Consome")
+    Rel(wsc, monitoring, "Envia Logs e Métricas")
+    Rel(so, monitoring, "Envia Logs e Métricas")
+
+    @enduml
+    </pre>
+</details>
 
 
 Claro! Aqui está uma versão aprimorada da sua documentação, com correções, mais clareza e melhor organização:
