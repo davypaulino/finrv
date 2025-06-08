@@ -4,5 +4,5 @@ namespace finrv.Application.Interfaces;
 
 public interface IAssetService
 {
-    Task<AssetLatestQuotationResponseDto?> LatestQuotation(string ticker);
+    Task<AssetLatestQuotationResponseDto?> LatestQuotationAsync(string ticker);
 }

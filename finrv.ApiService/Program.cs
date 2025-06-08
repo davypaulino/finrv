@@ -29,4 +29,7 @@ app.MapGroup("/api/v1/users")
 app.MapGroup("/api/v1/assets")
     .MapAssets();
 
+app.MapGroup("/api/v1/transactions")
+    .MapTransactions();
+
 app.Run();

@@ -9,17 +9,30 @@ public static class UserRoutes
 {
     public static RouteGroupBuilder MapUsers(this RouteGroupBuilder builder)
     {
-        builder.MapGet("", async ([FromServices] IUserService userService, [AsParameters] AllUsersRequestDto request) =>
-            {
-                return await userService.AllUsers(request);
-            })
+        builder.MapGet("", async (
+            [FromServices] IUserService userService,
+            [AsParameters] AllUsersRequestDto request) 
+                => await userService.AllUsersAsync(request))
             .WithName("Retorna usuários")
             .WithTags("users")
             .WithDescription("Retornas useuários com paginação")
             .WithDisplayName("Retorna usuários")
             .Produces(StatusCodes.Status200OK, typeof(Pagination<string, object>), contentType: "application/json")
             .Produces(StatusCodes.Status500InternalServerError, typeof(string));
-        
+
+        builder.MapGet("/{userId}/assets-average-price", async (
+            [AsParameters] AssetsAveragePriceRequestDto request,
+            [FromServices] IUserService userService, 
+            Guid userId) 
+                => await userService.AveragePriceOfAssetsByUserAsync(userId,  request))
+            .WithName("Preço Médio de Ativos")
+            .WithTags("users", "assets")
+            .WithDescription("Recupera o preço médio de ativos de um usuário")
+            .WithDisplayName("Preço Médio de Ativos")
+            .Produces(StatusCodes.Status200OK,  typeof(Pagination<AssetsAveragePriceResponseDto, object>), contentType: "application/json")
+            .Produces(StatusCodes.Status400BadRequest, typeof(List<string>))
+            .Produces(StatusCodes.Status500InternalServerError, typeof(string));
+            
         return builder;
     }
 }

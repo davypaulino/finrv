@@ -14,8 +14,11 @@ public class AssetService(
 {
     public const string CLASS_NAME = nameof(AssetService);
 
-    public async Task<AssetLatestQuotationResponseDto?> LatestQuotation(string ticker)
+    public async Task<AssetLatestQuotationResponseDto?> LatestQuotationAsync(string ticker)
     {
+        logger.LogInformation("Starting | Class: {Class} | Method: {Method} | CorrelationId: {CorrelationId} | ClientType {ClientType}.",
+            CLASS_NAME, nameof(LatestQuotationAsync), requestInfo.CorrelationId, requestInfo.ClientType);
+
         var lastQuotation = await context.Quotation
             .Where(q => q.Asset.Ticker == ticker)
             .OrderByDescending(q => q.UpdatedAt ?? q.CreatedAt)
@@ -28,7 +31,10 @@ public class AssetService(
                     q.Price,
                     q.UpdatedAt ?? q.CreatedAt))
             .FirstOrDefaultAsync();
-        
+
+        logger.LogInformation("Finished | Class: {Class} | Method: {Method} | CorrelationId: {CorrelationId} | ClientType {ClientType}.",
+            CLASS_NAME, nameof(LatestQuotationAsync), requestInfo.CorrelationId, requestInfo.ClientType);
+
         return lastQuotation;
     }
 }
