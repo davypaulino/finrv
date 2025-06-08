@@ -7,7 +7,7 @@ namespace finrv.Domain.Helpers;
 
 public static class AssetPriceAveragerFactory
 {
-    public static IAssetPriceAverager CreateCalculator(EVariableIncomeProduct type, IEnumerable<Trade> purchases) => type switch
+    public static IAssetPriceAverager CreateCalculator(EVariableIncomeProduct type) => type switch
     {
         EVariableIncomeProduct.Acoes or 
         EVariableIncomeProduct.FundosImobiliarios or
@@ -17,7 +17,7 @@ public static class AssetPriceAveragerFactory
         EVariableIncomeProduct.MercadoAVista or
         EVariableIncomeProduct.OfertasPublicasIniciais or
         EVariableIncomeProduct.OfertasSubsequentes
-            => new AssetPriceAverager(purchases),
+            => new AssetPriceAverager(),
         _ => throw new ArgumentException($"No asset price averager found for product type: {type}")
     };
 }

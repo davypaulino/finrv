@@ -8,15 +8,13 @@ namespace finrv.UnitTests.HelpersTests;
 
 public class AssetPriceAveragerFactoryTests
 {
-    private readonly IEnumerable<Trade> _dummyTrades = new List<Trade>();
-
     [Theory]
     [InlineData(EVariableIncomeProduct.Acoes, typeof(AssetPriceAverager))]
     public void CreateCalculator_ShouldReturnCorrectType_ForGivenProduct(
         EVariableIncomeProduct productType, Type expectedCalculatorType)
     {
         // Arrange && Act
-        IAssetPriceAverager calculator = AssetPriceAveragerFactory.CreateCalculator(productType, _dummyTrades);
+        IAssetPriceAverager calculator = AssetPriceAveragerFactory.CreateCalculator(productType);
         
         // Assert
         Assert.NotNull(calculator);
@@ -30,7 +28,7 @@ public class AssetPriceAveragerFactoryTests
 
         // Act & Assert
         var ex = Assert.Throws<ArgumentException>(() =>
-            AssetPriceAveragerFactory.CreateCalculator(unhandledType, _dummyTrades));
+            AssetPriceAveragerFactory.CreateCalculator(unhandledType));
         Assert.Contains($"No asset price averager found for product type: {unhandledType}", ex.Message);
     }
 }

@@ -28,5 +28,3 @@ INSERT INTO posicao (id, usuario_id, ativo_id, quantidade, preco_medio, lucro_ou
 (UUID(), '57e8b488-f85c-42de-a1b4-03e8bc0c58a2', 3, 1, 12.26, 0.00, NOW(), 'test'),    -- Posição consolidada de B3SA3 (3 compras - 2 vendas)
 (UUID(), '17a0ad41-eca4-478e-9dd5-f8b2b218e848', 3, 20, 12.26, 0.00, NOW(), 'test'),  -- Posição consolidada de B3SA3 para outro usuário
 (UUID(), '17a0ad41-eca4-478e-9dd5-f8b2b218e848', 2, 39, 32.33, 0.00, NOW(), 'test'); -- Posição consolidada de ITUB3 (50 compras - 11 vendas)
-
-SELECT  * from cotacao;

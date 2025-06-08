@@ -3,6 +3,7 @@ using finrv.Application.Enums;
 using finrv.Application.Interfaces;
 using finrv.Application.Services.PositionService.Dtos;
 using finrv.Domain.Entities;
+using finrv.Domain.Enums;
 using finrv.Infra;
 using finrv.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -50,8 +51,8 @@ public class PositionService(
             .Select(g => new TotalPositionsDetailsResponseDto(
                 g.Select(t => t.UserId).Distinct().LongCount(),
                 g. Sum(t => ((t.UnitPrice * t.PositionSize) * t.BrokerageValue) / 100),
-                g.Sum(t => t.PositionSize),
-                g.Sum(t => t.UnitPrice * t.PositionSize)
+                g.Sum(t => t.Type == ETransactionType.Buy ? t.PositionSize : 0),
+                g.Sum(t => t.Type == ETransactionType.Buy ? t.UnitPrice * t.PositionSize : 0m)
             )).FirstOrDefaultAsync();
         return totalDetails;
     }
@@ -63,8 +64,8 @@ public class PositionService(
                 UserId = g.Key.UserId,
                 Name = g.Key.Name,
                 Email = g.Key.Email,
-                TotalPositionSize = g.Sum(t => t.PositionSize),
-                TotalPositionValue = g.Sum(t => t.UnitPrice * t.PositionSize),
+                TotalPositionSize = g.Sum(t => t.Type == ETransactionType.Buy ? t.PositionSize : 0),
+                TotalPositionValue = g.Sum(t => t.Type == ETransactionType.Buy ? t.UnitPrice * t.PositionSize : 0),
                 TotalBrokeragePaid = g.Sum(t => ((t.UnitPrice * t.PositionSize) * t.BrokerageValue) / 100)
             });
     }
