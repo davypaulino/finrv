@@ -1,4 +1,5 @@
 using finrv.ApiService.Application;
+using finrv.Application.Enums;
 using finrv.Application.Interfaces;
 using finrv.Application.Services.UserService.Dtos;
 using finrv.Domain.Entities;
@@ -25,6 +26,10 @@ public class UserService(
         var query = context.User.AsQueryable();
 
         var totalItems = await query.CountAsync();
+        
+        query = request.OrderBy == EOrderBy.Desc ?
+            query.OrderByDescending(q => q.Name)
+            : query.OrderBy(q => q.Name);
         
         var users = await query
             .Skip((int)((request.Page - 1) * request.PageSize))
@@ -54,8 +59,11 @@ public class UserService(
         if (!String.IsNullOrEmpty(hasTickersFilter))
             q = q.Where(p => query.Tickers!.Contains(p.Asset.Ticker));
         
+        q = query.OrderBy == EOrderBy.Desc ? 
+            q.OrderByDescending(p => p.Asset.Ticker)
+            : q.OrderBy(p => p.Asset.Ticker);
+        
         var result = await q
-            .OrderBy(p => p.Asset.Ticker)
             .Skip((int)((query.Page - 1) * query.PageSize))
             .Take((int)query.PageSize)
             .Select(p => new AssetsAveragePriceResponseDto(
