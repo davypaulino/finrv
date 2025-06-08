@@ -8,9 +8,11 @@ public static class AssetRoutes
 {
     public static RouteGroupBuilder MapAssets(this RouteGroupBuilder builder)
     {
-        builder.MapGet("/{ticker}/latest", async ([FromServices] IAssetService assetService, string ticker) =>
+        builder.MapGet("/{ticker}/latest", async (
+                [FromServices] IAssetService assetService, 
+                string ticker) =>
             {
-                var result = await assetService.LatestQuotation(ticker);
+                var result = await assetService.LatestQuotationAsync(ticker);
                 return result is not null ? Results.Ok(result) : Results.NotFound("Ativo não Encontrado");
             })
             .WithName("Ultima cotação de um ativo")
@@ -19,6 +21,7 @@ public static class AssetRoutes
             .WithDisplayName("Ultima cotação de um ativo")
             .Produces(StatusCodes.Status200OK, typeof(AssetLatestQuotationResponseDto), contentType: "application/json")
             .Produces(StatusCodes.Status404NotFound, typeof(string))
+            .Produces(StatusCodes.Status400BadRequest, typeof(string))
             .Produces(StatusCodes.Status500InternalServerError, typeof(string));
         
         return builder;
