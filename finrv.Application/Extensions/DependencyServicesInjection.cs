@@ -3,10 +3,10 @@ using finrv.Application.Services.AssetService;
 using finrv.Application.Services.PositionService;
 using finrv.Application.Services.TransactionService;
 using finrv.Application.Services.UserService;
-using finrv.Application.Services.UserService;
 using finrv.Shared;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace finrv.ApiService.Extensions;
+namespace finrv.Application.Extensions;
 
 public static class DependencyServicesInjection
 {

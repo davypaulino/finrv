@@ -19,7 +19,7 @@ public class AssetPriceAverager() : IAssetPriceAverager
             .OrderBy(p => p.Time)
             .ToList();
 
-        long currentQuantity = 0;
+        decimal currentQuantity = 0m;
         decimal currentTotalCost = 0m;
         decimal currentWeightedAverage = 0m;
 
@@ -27,17 +27,17 @@ public class AssetPriceAverager() : IAssetPriceAverager
         {
             if (trade.Type == ETransactionType.Buy)
             {
-                decimal costOfThisBuy = (trade.Price * trade.PositionSize) + trade.Brokerage;
+                decimal costOfThisBuy = (trade.Price * ((decimal)trade.PositionSize)) + trade.Brokerage;
                 
                 currentTotalCost += costOfThisBuy;
                 currentQuantity += trade.PositionSize;
-                currentWeightedAverage = currentQuantity > 0 ? currentTotalCost / currentQuantity : 0m;
+                currentWeightedAverage = currentQuantity > 0 ? currentTotalCost / (decimal)currentQuantity : 0m;
             }
             else if (trade.Type == ETransactionType.Sell)
             {
                 if (trade.PositionSize >= currentQuantity)
                 {
-                    currentQuantity = 0;
+                    currentQuantity = 0m;
                     currentTotalCost = 0m;
                     currentWeightedAverage = 0m;
                     continue;
