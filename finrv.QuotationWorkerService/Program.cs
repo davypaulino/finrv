@@ -1,6 +1,7 @@
 using Confluent.Kafka;
 using finrv.Application.Extensions;
 using finrv.Infra.Extensions;
+using finrv.Infra.Helpers;
 using finrv.QuotationWorkerService;
 using finrv.QuotationWorkerService.Abstraction;
 using finrv.QuotationWorkerService.Consumers;
@@ -18,6 +19,8 @@ builder.Services.AddProblemDetails();
 builder.Services.AddDependencies();
 builder.Services.AddDatabase(builder.Configuration);
 builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("Broker"));
+builder.Services.Configure<RetryPolicySettings>(builder.Configuration.GetSection("RetryPolicy"));
+builder.Services.AddSingleton<CustomDeserializer<QuotationUpdateEvent>>();
 builder.Services.AddSingleton<ConsumerConfig>(serviceProvider =>
 {
     var kafkaSettings = serviceProvider.GetRequiredService<IOptions<KafkaSettings>>().Value;
@@ -32,7 +35,7 @@ builder.Services.AddSingleton<ConsumerConfig>(serviceProvider =>
     };
 });
 
-builder.Services.AddSingleton<IListener<QuotationUpdateEvent>, QuotationUpdateListener>();
+builder.Services.AddScoped<IListener<QuotationUpdateEvent>, QuotationUpdateListener>();
 builder.Services.AddSingleton<KafkaConsumerService<QuotationUpdateEvent>>();
 
 var host = builder.Build();

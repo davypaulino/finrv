@@ -142,6 +142,12 @@ namespace finrv.Infra.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("criado_por");
 
+                    b.Property<ulong>("Increment")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("BIGINT UNSIGNED")
+                        .HasDefaultValue(0ul)
+                        .HasColumnName("contador");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(10,2)")
                         .HasColumnName("preco_unitario");
