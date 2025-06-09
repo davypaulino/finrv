@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using finrv.Infra;
 
@@ -10,9 +11,11 @@ using finrv.Infra;
 namespace finrv.Infra.Migrations
 {
     [DbContext(typeof(InvestimentDbContext))]
-    partial class InvestimentDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250609040922_Added_Count_For_Quotation")]
+    partial class Added_Count_For_Quotation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

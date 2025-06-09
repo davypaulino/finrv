@@ -4,5 +4,6 @@ public record QuotationUpdateEvent(
     Guid Id,
     string CorrelationId,
     string Ticker,
-    string Price,
+    string Name,
+    decimal Price,
     DateTime LatestUpdate);

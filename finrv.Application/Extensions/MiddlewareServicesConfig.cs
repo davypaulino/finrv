@@ -45,7 +45,7 @@ public static class MiddlewareServicesConfig
                 context.Response.ContentType = "application/json";
                 string message = "Ocorreu um erro inesperado no servidor.";
 
-                if (exception is BadHttpRequestException || exception is FormatException)
+                if (exception is BadHttpRequestException || exception is FormatException || exception is ArgumentException)
                 {
                     message = "Um dos parâmetros fornecidos é inválido.";
                     context.Response.StatusCode = (int)HttpStatusCode.BadRequest;

@@ -1,10 +1,10 @@
-using System.Text.Json;
-using Confluent.Kafka;
+using System.Collections.Concurrent;
+using finrv.Domain.Entities;
+using finrv.Infra;
 using finrv.QuotationWorkerService.Abstraction;
-using finrv.QuotationWorkerService.Consumers;
 using finrv.QuotationWorkerService.Events;
-using finrv.QuotationWorkerService.Settings;
-using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace finrv.QuotationWorkerService.Listeners;
 
@@ -14,50 +14,86 @@ public class QuotationUpdateListener : IListener<QuotationUpdateEvent>
     private const string CLASS_NAME = nameof(QuotationUpdateListener);
     
     private readonly ILogger<QuotationUpdateListener> _logger;
-    private KafkaConsumerService<QuotationUpdateEvent> _consumerService;
-    
+    private readonly InvestimentDbContext _dbContext;
+    private static readonly ConcurrentDictionary<Guid, bool> _processedEvents = new ConcurrentDictionary<Guid, bool>();
+
     public QuotationUpdateListener(
         ILogger<QuotationUpdateListener> logger,
-        IOptions<KafkaSettings>  kafkaSettings,
-        KafkaConsumerService<QuotationUpdateEvent> consumerService)
+        InvestimentDbContext context)
     {
         _logger = logger;
-        _consumerService = consumerService;
-        if (!kafkaSettings.Value.Topics.TryGetValue(CLASS_NAME, out _kafkaTopic))
-        {
-            throw new InvalidOperationException($"Kafka topic '{CLASS_NAME}' not found in settings.");
-        }
-    }
-    
-    public async Task StartAsync(CancellationToken cancellationToken)
-    {
-         _logger.LogInformation("Starting | Class: {ClassName} | Method: {Method} | Listening event {Event} on topic {Topic}",
-            CLASS_NAME, nameof(StartAsync), nameof(QuotationUpdateEvent), _kafkaTopic);
-         await _consumerService.SetupConsumerAsync(this, _kafkaTopic, cancellationToken);
+        _dbContext = context;
     }
     
     public async Task ProcessMessageAsync(QuotationUpdateEvent message)
     {
-        _logger.LogInformation("Processing event | Class: {ClassName} | Method: {Method} | Event ID: {EventId}",
-            CLASS_NAME, nameof(ProcessMessageAsync), message?.Id);
-
-        _logger.LogInformation("Simulating processing of QuotationUpdateEvent for Symbol: {Symbol}, Price: {Price}",
-            message?.Ticker, message?.Price);
+        _logger.LogInformation("Starting | Processing event | Class: {ClassName} | Method: {Method} | Event ID: {EventId} | CorrelationId {CorrelationId}",
+            CLASS_NAME, nameof(ProcessMessageAsync), message?.Id, message?.CorrelationId);
         
-        await Task.Delay(100);
+        if (message == null || _processedEvents.ContainsKey(message.Id))
+        {
+            _logger.LogInformation("Event with Id '{EventId}' already processed or is null. Skipping.", message?.Id);
+            return;
+        }
+        
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            var hasTicker = await _dbContext.Asset.FirstOrDefaultAsync(a => a.Ticker == message.Ticker);
+            if (hasTicker == null)
+            {
+                var asset = await _dbContext.Asset.AddAsync(new AssetEntity(message.Ticker, message.Name));
+                _dbContext.Quotation.Add(new QuotationEntity(asset.Entity, message.Price, message.LatestUpdate));
+                await FinishTransaction(transaction, message);
+                return;
+            }
+            
+            var query = _dbContext.Quotation
+                .Include(q => q.Asset)
+                .AsQueryable();
+        
+            query = query
+                .Where(q => q.Asset.Ticker == message.Ticker)
+                .OrderByDescending(q => q.UpdatedAt ?? q.CreatedAt);
+        
+            var quotation = await query.FirstOrDefaultAsync();
 
-        _logger.LogInformation("Event processed successfully | Event ID: {EventId}", message?.Id);
+            if (quotation is not null && quotation.Price != message.Price)
+            {
+                _dbContext.Quotation.Add(new QuotationEntity(quotation.Asset, message.Price, message.LatestUpdate));
+                await FinishTransaction(transaction, message);
+                return;
+            }
+        
+            quotation?.UpdateQuotation(message.LatestUpdate);
+            _dbContext.Quotation.Update(quotation);
+            await FinishTransaction(transaction, message);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Error processing event | Class: {ClassName} | Method: {Method} | Event ID: {EventId} | CorrelationId {CorrelationId}",
+                CLASS_NAME, nameof(ProcessMessageAsync), message?.Id, message?.CorrelationId);
+            throw;
+        }
     }
-
-    public Task ProcessErrorAsync(string rawMessage, Exception exception)
+    
+    public void ProcessErrorAsync(QuotationUpdateEvent rawMessage, Exception exception)
     {
-        _logger.LogError(exception, "Error handling message. Raw Message: {RawMessage}", rawMessage);
-        return Task.CompletedTask;
+        _logger.LogError(exception, "Error handling message. Message: {Message}", rawMessage);
     }
-
-    public Task ProcessInvalidMessageAsync(string rawMessage, Exception exception)
+    
+    public async Task FinishTransaction(IDbContextTransaction transaction, QuotationUpdateEvent message)
     {
-        _logger.LogWarning(exception, "Received invalid message format. Raw Message: {RawMessage}", rawMessage);
-        return Task.CompletedTask;
+        await _dbContext.SaveChangesAsync();
+        await transaction.CommitAsync();
+        if (!_processedEvents.TryAdd(message.Id, true))
+        {
+            _logger.LogWarning("Concurrent add detected for Event ID '{EventId}'. Already processed.", message.Id);
+            return;
+        }
+            
+        _logger.LogInformation("Finished | Processing event | Class: {ClassName} | Method: {Method} | Event ID: {EventId} | CorrelationId {CorrelationId}",
+            CLASS_NAME, nameof(ProcessMessageAsync), message?.Id, message?.CorrelationId);
     }
 }

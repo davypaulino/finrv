@@ -32,6 +32,11 @@ public class QuotationEntityMapping : BaseEntityMapping<QuotationEntity>
             .HasColumnType("decimal(10,2)")
             .IsRequired();
 
+        builder.Property(q => q.Increment)
+            .HasColumnName("contador")
+            .HasColumnType("BIGINT UNSIGNED")
+            .HasDefaultValue(0);
+
         builder.HasIndex(q => new { q.AssetId, q.UpdatedAt })
             .HasDatabaseName("IX_latest_quotation_by_ticker_updateAt_des")
             .IsDescending();

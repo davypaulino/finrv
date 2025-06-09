@@ -1,117 +1,125 @@
-using System.Text.Json;
 using Confluent.Kafka;
+using finrv.Infra.Helpers;
 using finrv.QuotationWorkerService.Abstraction;
+using finrv.QuotationWorkerService.Settings;
+using Microsoft.Extensions.Options;
+using Polly;
+using Polly.Retry;
 
-namespace finrv.QuotationWorkerService.Consumers;
-
-public class KafkaConsumerService<TEvent> where TEvent : class
+namespace finrv.QuotationWorkerService.Consumers
 {
-    private readonly ConsumerConfig _consumerConfig;
-    private readonly ILogger<KafkaConsumerService<TEvent>> _logger;
-    private IListener<TEvent>?  _listener;
+    public class KafkaConsumerService<TEvent> where TEvent : class
+    {
+        private readonly ConsumerConfig _consumerConfig;
+        private readonly ILogger<KafkaConsumerService<TEvent>> _logger;
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly CustomDeserializer<TEvent> _deserializer;
+        private readonly RetryPolicySettings _retryPolicySettings;
+        private AsyncRetryPolicy _retryPolicy;
     
-    public KafkaConsumerService(
-        ConsumerConfig consumerConfig,
-        ILogger<KafkaConsumerService<TEvent>> logger)
-    {
-        _logger = logger;
-        _consumerConfig = consumerConfig ?? throw new ArgumentNullException(nameof(consumerConfig));
-    }
-
-    public async Task SetupConsumerAsync(IListener<TEvent> listener, string topicName, CancellationToken cancellationToken)
-    {
-        _listener = listener;
-        using var consumer = new ConsumerBuilder<Ignore, string>(_consumerConfig)
-            .SetErrorHandler((_, e) => _logger.LogError($"Error on Kafka Consumer: {e.Reason}"))
-            .SetLogHandler((_, l) => _logger.LogInformation($"Kafka Consumer: {l.Message}"))
-            .Build();
-
-        _logger.LogInformation($"Consumer Listener Topic: {topicName}");
-        consumer.Subscribe(topicName);
-
-        try
+        public KafkaConsumerService(
+            ConsumerConfig consumerConfig,
+            ILogger<KafkaConsumerService<TEvent>> logger,
+            IServiceScopeFactory scopeFactory,
+            CustomDeserializer<TEvent> deserializer,
+            IOptions<RetryPolicySettings> retryPolicySettings)
         {
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                try
-                {
-                    var consumeResult = consumer.Consume(cancellationToken);
-                    if (consumeResult == null)
-                        continue;
+            _logger = logger;
+            _consumerConfig = consumerConfig;
+            _scopeFactory = scopeFactory;
+            _deserializer = deserializer;
+            _retryPolicySettings = retryPolicySettings.Value;
+        }
 
-                    if (consumeResult.IsPartitionEOF)
+        public async Task SetupConsumerAsync(string topicName, CancellationToken cancellationToken)
+        {
+            using var consumer = new ConsumerBuilder<Ignore, TEvent>(_consumerConfig)
+                .SetKeyDeserializer(Deserializers.Ignore)
+                .SetValueDeserializer(_deserializer)
+                .SetErrorHandler((_, e) => _logger.LogError($"Error on Kafka Consumer: {e.Reason}"))
+                .SetLogHandler((_, l) => _logger.LogInformation($"Kafka Consumer: {l.Message}"))
+                .Build();
+
+            _logger.LogInformation($"Consumer Listener Topic: {topicName}");
+            consumer.Subscribe(topicName);
+            
+            _retryPolicy = Policy
+                .Handle<Exception>()
+                .WaitAndRetryAsync(
+                    _retryPolicySettings.RetryCount,
+                    retryAttempt => TimeSpan.FromSeconds(Math.Pow(_retryPolicySettings.SleepDurationPower, retryAttempt)),
+                    (exception, timeSpan, retryCount, context) =>
                     {
-                        _logger.LogInformation(
-                            "Partition Finished {Partition} | offset {Offset} | Topic {Topic}",
-                            consumeResult.Partition, consumeResult.Offset, consumeResult.Topic);
-                        continue;
-                    }
-                    
-                    await ExtractConsumerMessage(consumer, consumeResult, cancellationToken);
-                }
-                catch (ConsumeException e)
-                {
-                    _logger.LogError($"Erro ao consumir mensagem: {e.Error.Reason}");
-                }
-                catch (OperationCanceledException)
-                {
-                    _logger.LogInformation("Kafka consumer operation cancelled.");
-                    break;
-                }
-                catch (Exception e)
-                {
-                    _logger.LogCritical(e, "Critical unhandled exception in Kafka consumer loop.");
-                }
-            }
-        }
-        finally
-        {
-            consumer.Close();
-            _logger.LogInformation("Kafka consumer closed.");
-        }
-    }
-    
-    public async Task ExtractConsumerMessage(
-        IConsumer<Ignore, string>? consumer, 
-        ConsumeResult<Ignore, string>? consumeResult,
-        CancellationToken cancellation)
-    {
-        string rawMessage = consumeResult.Message.Value;
-        
-        _logger.LogDebug(
-            "Received message | Topic: {Topic} | Partition: {Partition} | Offset: {Offset} | Key: {Key} | Value: {Value}",
-            consumeResult.Topic, consumeResult.Partition, consumeResult.Offset,
-            consumeResult.Message.Key, rawMessage);
-        
-        TEvent? messageEvent = null;
-        try
-        {
-            messageEvent = JsonSerializer.Deserialize<TEvent>(rawMessage);
-            if (messageEvent == null)
+                        _logger.LogWarning(exception, $"Falha ao processar mensagem Kafka. Tentando novamente em {timeSpan.TotalSeconds:N1} segundos. Tentativa {retryCount}/{_retryPolicySettings.RetryCount}.");
+                    });
+            try
             {
-                throw new JsonException(
-                    $"Failed to deserialize message to {nameof(TEvent)}: result is null.");
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        var consumeResult = consumer.Consume(cancellationToken);
+                        if (consumeResult == null)
+                            continue;
+
+                        if (consumeResult.IsPartitionEOF)
+                        {
+                            _logger.LogInformation(
+                                "Partition Finished {Partition} | offset {Offset} | Topic {Topic}",
+                                consumeResult.Partition, consumeResult.Offset, consumeResult.Topic);
+                            continue;
+                        }
+                    
+                        await ExtractConsumerMessage(consumer, consumeResult, cancellationToken);
+                    }
+                    catch (ConsumeException e)
+                    {
+                        _logger.LogError($"Erro ao consumir mensagem: {e.Error.Reason}");
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        _logger.LogInformation("Kafka consumer operation cancelled.");
+                        break;
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogCritical(e, "Critical unhandled exception in Kafka consumer loop.");
+                    }
+                }
             }
-            
-            await _listener.ProcessMessageAsync(messageEvent);
-            
-            consumer?.Commit(consumeResult);
-            _logger.LogInformation(
-                "Offset {Offset} commitado para a partição {Partition} após processamento bem-sucedido.",
-                consumeResult.Offset, consumeResult.Partition);
+            finally
+            {
+                consumer.Close();
+                _logger.LogInformation("Kafka consumer closed.");
+            }
         }
-        catch (JsonException ex)
+    
+        public async Task ExtractConsumerMessage(
+            IConsumer<Ignore, TEvent>? consumer, 
+            ConsumeResult<Ignore, TEvent>? consumeResult,
+            CancellationToken cancellation)
         {
-            _logger.LogError(ex, "Failed to deserialize Kafka message. Raw message: {RawMessage}",
-                rawMessage);
-            await _listener.ProcessInvalidMessageAsync(rawMessage, ex);
-            consumer?.Commit(consumeResult);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error processing Kafka message. Raw message: {RawMessage}",
-                rawMessage);
-            await _listener.ProcessErrorAsync(rawMessage, ex);
+            await _retryPolicy.ExecuteAsync(async () =>
+            {
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var listener = scope.ServiceProvider.GetRequiredService<IListener<TEvent>>();
+                    try
+                    {
+                        TEvent? message = consumeResult.Message.Value;
+                        await listener.ProcessMessageAsync(message);
+                        consumer?.Commit(consumeResult);
+                        _logger.LogInformation(
+                            "Offset {Offset} commit on partition {Partition} with success.",
+                            consumeResult.Offset, consumeResult.Partition);
+                    }
+                    catch (Exception ex)
+                    {
+                        listener.ProcessErrorAsync(consumeResult.Message.Value, ex);
+                        throw;
+                    }
+                }
+            });
         }
     }
 }
