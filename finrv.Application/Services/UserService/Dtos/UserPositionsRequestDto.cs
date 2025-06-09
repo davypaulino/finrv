@@ -13,4 +13,7 @@ public record UserPositionsRequestDto(
     uint PageSize = 10,
     [DefaultValue(EOrderBy.Asc)]
     [Description("Options: 0 - ASC | 1 - DESC")]
-    EOrderBy OrderBy = EOrderBy.Asc);
+    EOrderBy OrderBy = EOrderBy.Asc,
+    [DefaultValue(EPositionFilters.BrokerageFees)]
+    [Description("Options: 0 - None | 1 - Brokerage | 2 - PositionSize | 3 - PositionValue")]
+    EPositionFilters Filter = EPositionFilters.None);
