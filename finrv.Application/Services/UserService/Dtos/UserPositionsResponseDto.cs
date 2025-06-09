@@ -1,11 +1,13 @@
 namespace finrv.Application.Services.UserService.Dtos;
 
-public record UserPositionsResponseDto(
-    string Ticker,
-    string Name,
-    uint PositionSize,
-    decimal PositionCostValue,
-    decimal MarketValue,
-    decimal AverageCostValue,
-    decimal ProfitAndLoss,
-    DateTime LastUpdate);
+public class UserTotalPositionsResponseDto
+{
+    public string Ticker  { get; set; }
+    public string Name  { get; set; }
+    public uint PositionSize  { get; set; }
+    public decimal PositionCostValue { get; set; } 
+    public decimal MarketValue { get; set; }
+    public decimal AverageCostValue { get; set; }
+    public decimal ProfitAndLoss { get; set; }
+    public DateTime LastUpdate { get; set; }
+}

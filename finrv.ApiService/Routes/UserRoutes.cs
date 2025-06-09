@@ -36,14 +36,14 @@ public static class UserRoutes
 
         builder.MapGet("/{userId}/positions", async (
             [FromServices] IUserService service,
-            [AsParameters] UsersPositionsRequestDto request,
+            [AsParameters] UserPositionsRequestDto request,
             Guid userId) 
                 => await service.GetUserPositionsByIdAsync(userId, request))
             .WithName("Recupera as posições de um cliente")
             .WithDescription("Recupera as posições de um cliente e um resumo da posição global.")
             .WithTags("users", "positons")
             .WithDisplayName("Recupera as posições de um cliente")
-            .Produces(StatusCodes.Status200OK, typeof(Pagination<TotalUserPositionResponseDto, UserPositionsResponseDto>), contentType: "application/json")
+            .Produces(StatusCodes.Status200OK, typeof(Pagination<TotalUserPositionResponseDto, UserTotalPositionsResponseDto>), contentType: "application/json")
             .Produces(StatusCodes.Status400BadRequest, typeof(string))
             .Produces(StatusCodes.Status500InternalServerError, typeof(string));
             

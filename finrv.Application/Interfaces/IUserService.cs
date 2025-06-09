@@ -8,5 +8,5 @@ public interface IUserService
 {
     Task<Pagination<object, AllUsersResponseDto>> AllUsersAsync(AllUsersRequestDto request);
     Task<Pagination<object, AssetsAveragePriceResponseDto>> AveragePriceOfAssetsByUserAsync(Guid userId, AssetsAveragePriceRequestDto query);
-    Task<Pagination<TotalUserPositionResponseDto, UserPositionsResponseDto>> GetUserPositionsByIdAsync(Guid userId, UsersPositionsRequestDto request);
+    Task<Pagination<TotalUserPositionResponseDto, UserTotalPositionsResponseDto>> GetUserPositionsByIdAsync(Guid userId, UserPositionsRequestDto request);
 }

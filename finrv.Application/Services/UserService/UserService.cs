@@ -79,16 +79,105 @@ public class UserService(
         return new Pagination<object, AssetsAveragePriceResponseDto>(result, query.Page, query.PageSize, (uint)totalItems, null);
     }
 
-    public async Task<Pagination<TotalUserPositionResponseDto, UserPositionsResponseDto>>
-        GetUserPositionsByIdAsync(Guid userId, UsersPositionsRequestDto request)
+    public async Task<Pagination<TotalUserPositionResponseDto, UserTotalPositionsResponseDto>>
+        GetUserPositionsByIdAsync(Guid userId, UserPositionsRequestDto request)
     {
-        await Task.CompletedTask;
-        var records = new List<UserPositionsResponseDto>();
-        return new Pagination<TotalUserPositionResponseDto, UserPositionsResponseDto>(
+        logger.LogInformation("Starting | Class: {Class} | Method: {Method} | CorrelationId: {CorrelationId} | ClientType {ClientType}.",
+            CLASS_NAME, nameof(GetUserPositionsByIdAsync), requestInfo.CorrelationId, requestInfo.ClientType);
+
+        var positionsForUserQuery = context.Position
+            .Where(p => p.UserId == userId && p.PositionSize > 0)
+            .Include(p => p.Asset)
+            .AsNoTracking();
+        
+        var assetIdsInUserPositions = await positionsForUserQuery
+            .Select(p => p.AssetId)
+            .Distinct()
+            .ToListAsync();
+        
+        var latestQuotations = await context.Quotation
+            .Where(q => assetIdsInUserPositions.Contains(q.AssetId))
+            .AsNoTracking()
+            .GroupBy(q => q.AssetId)
+            .Select(group => group.OrderByDescending(q => q.UpdatedAt ?? q.CreatedAt).First())
+            .ToDictionaryAsync(
+                q => q.AssetId,
+                q => new
+                {
+                    QuotationPrice = q.Price,
+                    QuotationTimestamp = q.UpdatedAt ?? q.CreatedAt,
+                });
+        
+        var positionsInMemory = await positionsForUserQuery.ToListAsync();
+
+        var records = positionsInMemory
+            .Select(position =>
+            {
+                latestQuotations.TryGetValue(position.AssetId, out var quotation);
+                decimal marketValue = quotation is not null ? position.PositionSize * quotation.QuotationPrice : 0m;
+                decimal positionCostValue = position.PositionSize * position.AveragePrice;
+
+                return new UserTotalPositionsResponseDto
+                {
+                    Ticker = position.Asset.Ticker,
+                    Name = position.Asset.Name,
+                    PositionSize = position.PositionSize,
+                    PositionCostValue = positionCostValue,
+                    AverageCostValue = position.AveragePrice,
+                    MarketValue = marketValue,
+                    ProfitAndLoss = marketValue - positionCostValue,
+                    LastUpdate = position.UpdatedAt ?? position.CreatedAt ?? DateTime.Now
+                };
+            })
+            .ToList();
+
+        records = OrderPositionsByFilter(records, request);
+        
+        var totalItems = records.Count;
+        long totalPositionSizeSum = records.Sum(f => (long)f.PositionSize);
+        decimal totalPositionCostValue = records.Sum(f => f.PositionCostValue);
+        decimal totalMarketValue = records.Sum(f => f.MarketValue);
+        decimal totalProfitAndLoss = records.Sum(f => f.ProfitAndLoss);
+
+        decimal totalAverageCostValue = 0m;
+        if (totalPositionSizeSum > 0)
+        {
+            totalAverageCostValue = Math.Round(totalPositionCostValue / totalPositionSizeSum, 2, MidpointRounding.AwayFromZero);
+        }
+
+        var totalDetails = new TotalUserPositionResponseDto(
+            TotalPositionSize: (uint)totalPositionSizeSum,
+            TotalPositionCost: totalPositionCostValue,
+            TotalAveragePrice: totalAverageCostValue,
+            TotalProfitAndLoss: totalProfitAndLoss,
+            TotalMarketValue: totalMarketValue
+        );
+        
+        logger.LogInformation("Finished | Class: {Class} | Method: {Method} | CorrelationId: {CorrelationId} | ClientType {ClientType}.",
+            CLASS_NAME, nameof(GetUserPositionsByIdAsync), requestInfo.CorrelationId, requestInfo.ClientType);
+
+        return new Pagination<TotalUserPositionResponseDto, UserTotalPositionsResponseDto>(
             records,
-            request.Page, request.PageSize, 0,
-            new TotalUserPositionResponseDto(
-                0m, 0, 0m, 0m, 0, 0));
+            request.Page, request.PageSize, (uint)totalItems,
+            totalDetails);
     }
+    
+    private static List<UserTotalPositionsResponseDto> OrderPositionsByFilter(
+        List<UserTotalPositionsResponseDto> records,
+       UserPositionsRequestDto request) => (records, request, request.Filter) switch
+    {
+        (_, _, EPositionFilters.PositionSize) => 
+            request.OrderBy == EOrderBy.Desc ?
+                records.OrderByDescending(o => o.PositionSize).ToList()
+                : records.OrderBy(o => o.PositionSize).ToList(),
+        (_, _, EPositionFilters.PositionValue) =>
+            request.OrderBy == EOrderBy.Desc ?
+                records.OrderByDescending(o => o.PositionCostValue).ToList()
+                : records.OrderBy(o => o.PositionCostValue).ToList(),
+        (_, _, _) =>
+            request.OrderBy == EOrderBy.Desc ?
+                records.OrderByDescending(o => o.Ticker).ToList()
+                : records.OrderBy(o => o.Ticker).ToList(),
+    };
     
 }
