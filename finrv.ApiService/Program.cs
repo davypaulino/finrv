@@ -1,10 +1,11 @@
-using finrv.ApiService.Extensions;
 using finrv.ApiService.Routes;
+using finrv.Application.Extensions;
 using finrv.Infra.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddLogging();
+builder.AddServiceDefaults();
 builder.Services.AddProblemDetails();
 builder.Services.AddDependencies();
 builder.Services.AddServices();

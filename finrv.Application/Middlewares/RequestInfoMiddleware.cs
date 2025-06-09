@@ -1,7 +1,9 @@
 ﻿using finrv.Shared;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
-namespace finrv.ApiService.Middlewares;
+namespace finrv.Application.Middlewares;
 
 public class RequestInfoMiddleware
 {

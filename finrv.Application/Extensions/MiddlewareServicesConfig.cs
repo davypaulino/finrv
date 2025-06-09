@@ -1,9 +1,13 @@
-﻿using finrv.ApiService.Middlewares;
+﻿using finrv.Application.Middlewares;
 using finrv.Shared;
 using System.Net;
 using System.Text.Json;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
-namespace finrv.ApiService.Extensions;
+namespace finrv.Application.Extensions;
 public static class MiddlewareServicesConfig
 {
     public static WebApplication MapMiddlewares(this WebApplication app)

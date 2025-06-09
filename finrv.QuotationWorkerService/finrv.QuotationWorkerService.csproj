@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-finrv.QuotationWorkerService-ce059ad5-5cd2-434d-899f-4b515e0b70b4</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Confluent.Kafka" Version="2.10.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.5"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\finrv.Application\finrv.Application.csproj" />
+      <ProjectReference Include="..\finrv.Infra\finrv.Infra.csproj" />
+      <ProjectReference Include="..\finrv.Shared\finrv.Shared.csproj" />
+    </ItemGroup>
+</Project>
