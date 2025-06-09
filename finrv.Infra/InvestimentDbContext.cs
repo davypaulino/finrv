@@ -1,5 +1,7 @@
 ﻿using finrv.Domain.Entities;
+using finrv.Shared;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace finrv.Infra;
 
@@ -7,8 +9,12 @@ public class InvestimentDbContext : DbContext
 {
     private InvestimentDbContext() { }
 
-    public InvestimentDbContext(DbContextOptions<InvestimentDbContext> options) : base(options) {
-        
+    private readonly ILogger<InvestimentDbContext> _logger;
+    private readonly RequestInfo _requestInfo;
+    public InvestimentDbContext(DbContextOptions<InvestimentDbContext> options,
+        RequestInfo requestInfo, ILogger<InvestimentDbContext> logger) : base(options) {
+        _requestInfo = requestInfo;
+        _logger = logger;
     }
 
     public virtual DbSet<UserEntity> User { get; set; }
@@ -25,22 +31,46 @@ public class InvestimentDbContext : DbContext
     
     private void OnBeforeSaving()
     {
-        var entries = ChangeTracker.Entries<BaseEntity>();
         var currentUser = "SYSTEM_WORKER_SERVICE";
-
-        foreach (var entry in entries)
+        if (_requestInfo.UserId is not null)
+            currentUser = _requestInfo.UserId;
+        var currentDateTime = DateTime.Now;
+        
+        foreach (var entry in  ChangeTracker.Entries<BaseEntity>())
         {
+            var auditableEntity = entry.Entity;
+            if (auditableEntity is QuotationEntity)
+            {
+                if (auditableEntity.CreatedAt is not null)
+                    currentDateTime = (DateTime)auditableEntity.CreatedAt;
+                if (auditableEntity.UpdatedAt is not null)
+                    currentDateTime = (DateTime)auditableEntity.UpdatedAt;
+                if  (auditableEntity.CreatedBy is not null)
+                    currentUser = auditableEntity.CreatedBy;
+                if (auditableEntity.UpdatedBy is not null)
+                    currentUser = auditableEntity.UpdatedBy;
+            }
+            
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.CreatedBy = currentUser;
-                    entry.Entity.UpdatedBy = currentUser;
+                    if (auditableEntity.CreatedAt == null)
+                    {
+                        auditableEntity.CreatedAt = currentDateTime;
+                    }
+                    if (string.IsNullOrWhiteSpace(auditableEntity.CreatedBy))
+                    {
+                        auditableEntity.CreatedBy = currentUser;
+                    }
+                    auditableEntity.UpdatedAt = currentDateTime;
+                    auditableEntity.UpdatedBy = currentUser;
                     break;
 
                 case EntityState.Modified:
-                    if (entry.OriginalValues["Id"] == null)
-                        entry.Entity.CreatedBy = currentUser;
-                    entry.Entity.UpdatedBy = currentUser;
+                    auditableEntity.UpdatedAt = currentDateTime;
+                    auditableEntity.UpdatedBy = currentUser;
+                    entry.Property(nameof(BaseEntity.CreatedAt)).IsModified = false;
+                    entry.Property(nameof(BaseEntity.CreatedBy)).IsModified = false;
                     break;
             }
         }
