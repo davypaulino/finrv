@@ -70,7 +70,7 @@ public class UserService(
             .Select(p => new AssetsAveragePriceResponseDto(
                 p.Asset.Ticker,
                 p.AveragePrice,
-                p.UpdatedAt ?? p.CreatedAt))
+                p.UpdatedAt ?? p.CreatedAt ?? DateTime.Now))
             .ToListAsync();
 
         logger.LogInformation("Finished | Class: {Class} | Method: {Method} | CorrelationId: {CorrelationId} | ClientType {ClientType}.",

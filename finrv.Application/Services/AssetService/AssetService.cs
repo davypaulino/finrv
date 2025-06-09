@@ -29,7 +29,7 @@ public class AssetService(
                     q.Asset.Name, 
                     q.Asset.Name,
                     q.Price,
-                    q.UpdatedAt ?? q.CreatedAt))
+                    q.UpdatedAt ?? q.CreatedAt ?? DateTime.Now))
             .FirstOrDefaultAsync();
 
         logger.LogInformation("Finished | Class: {Class} | Method: {Method} | CorrelationId: {CorrelationId} | ClientType {ClientType}.",

@@ -21,13 +21,15 @@ public class RequestInfoMiddleware
     {
         var correlationId = context.Request.Headers["X-Correlation-Id"].FirstOrDefault()?.Sanitize();
         var clientType = context.Request.Headers["X-Client-Type"].FirstOrDefault()?.Sanitize();
+        var userId = context.Request.Headers["X-User-Id"].FirstOrDefault()?.Sanitize();
 
         _logger.LogInformation("Starting | Class {ClassName} | Method {Method} | Correlation: {CorrelationId} | ClientType: {ClientType} ",
             CLASS_NAME, nameof(Invoke), correlationId, clientType);
 
         requestInfo.SetInfo(
             correlationId,
-            clientType);
+            clientType,
+            userId);
 
         await _next(context);
 
